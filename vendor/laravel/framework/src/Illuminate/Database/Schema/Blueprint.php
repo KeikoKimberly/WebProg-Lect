@@ -5,6 +5,7 @@ namespace Illuminate\Database\Schema;
 use BadMethodCallException;
 use Closure;
 use Illuminate\Database\Connection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Grammars\Grammar;
 use Illuminate\Database\SQLiteConnection;
@@ -70,13 +71,6 @@ class Blueprint
      * @var bool
      */
     public $temporary = false;
-
-    /**
-     * The column to add new columns after.
-     *
-     * @var string
-     */
-    public $after;
 
     /**
      * Create a new schema blueprint.
@@ -208,7 +202,7 @@ class Blueprint
     protected function addFluentIndexes()
     {
         foreach ($this->columns as $column) {
-            foreach (['primary', 'unique', 'index', 'fulltext', 'fullText', 'spatialIndex'] as $index) {
+            foreach (['primary', 'unique', 'index', 'spatialIndex'] as $index) {
                 // If the index has been specified on the given column, but is simply equal
                 // to "true" (boolean), no name has been specified for this index so the
                 // index method can be called without a name and it will generate one.
@@ -365,17 +359,6 @@ class Blueprint
     public function dropIndex($index)
     {
         return $this->dropIndexCommand('dropIndex', 'index', $index);
-    }
-
-    /**
-     * Indicate that the given fulltext index should be dropped.
-     *
-     * @param  string|array  $index
-     * @return \Illuminate\Support\Fluent
-     */
-    public function dropFullText($index)
-    {
-        return $this->dropIndexCommand('dropFullText', 'fulltext', $index);
     }
 
     /**
@@ -542,19 +525,6 @@ class Blueprint
     }
 
     /**
-     * Specify an fulltext for the table.
-     *
-     * @param  string|array  $columns
-     * @param  string|null  $name
-     * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent
-     */
-    public function fullText($columns, $name = null, $algorithm = null)
-    {
-        return $this->indexCommand('fulltext', $columns, $name, $algorithm);
-    }
-
-    /**
      * Specify a spatial index for the table.
      *
      * @param  string|array  $columns
@@ -699,17 +669,6 @@ class Blueprint
         $length = $length ?: Builder::$defaultStringLength;
 
         return $this->addColumn('string', $column, compact('length'));
-    }
-
-    /**
-     * Create a new tiny text column on the table.
-     *
-     * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
-     */
-    public function tinyText($column)
-    {
-        return $this->addColumn('tinyText', $column);
     }
 
     /**
@@ -878,12 +837,14 @@ class Blueprint
      */
     public function foreignId($column)
     {
-        return $this->addColumnDefinition(new ForeignIdColumnDefinition($this, [
+        $this->columns[] = $column = new ForeignIdColumnDefinition($this, [
             'type' => 'bigInteger',
             'name' => $column,
             'autoIncrement' => false,
             'unsigned' => true,
-        ]));
+        ]);
+
+        return $column;
     }
 
     /**
@@ -899,7 +860,7 @@ class Blueprint
             $model = new $model;
         }
 
-        return $model->getKeyType() === 'int' && $model->getIncrementing()
+        return $model->getKeyType() === 'int' && $model->incrementing
                     ? $this->foreignId($column ?: $model->getForeignKey())
                     : $this->foreignUuid($column ?: $model->getForeignKey());
     }
@@ -1229,10 +1190,10 @@ class Blueprint
      */
     public function foreignUuid($column)
     {
-        return $this->addColumnDefinition(new ForeignIdColumnDefinition($this, [
+        return $this->columns[] = new ForeignIdColumnDefinition($this, [
             'type' => 'uuid',
             'name' => $column,
-        ]));
+        ]);
     }
 
     /**
@@ -1544,44 +1505,11 @@ class Blueprint
      */
     public function addColumn($type, $name, array $parameters = [])
     {
-        return $this->addColumnDefinition(new ColumnDefinition(
+        $this->columns[] = $column = new ColumnDefinition(
             array_merge(compact('type', 'name'), $parameters)
-        ));
-    }
+        );
 
-    /**
-     * Add a new column definition to the blueprint.
-     *
-     * @param  \Illuminate\Database\Schema\ColumnDefinition  $definition
-     * @return \Illuminate\Database\Schema\ColumnDefinition
-     */
-    protected function addColumnDefinition($definition)
-    {
-        $this->columns[] = $definition;
-
-        if ($this->after) {
-            $definition->after($this->after);
-
-            $this->after = $definition->name;
-        }
-
-        return $definition;
-    }
-
-    /**
-     * Add the columns from the callback after the given column.
-     *
-     * @param  string  $column
-     * @param  \Closure  $callback
-     * @return void
-     */
-    public function after($column, Closure $callback)
-    {
-        $this->after = $column;
-
-        $callback($this);
-
-        $this->after = null;
+        return $column;
     }
 
     /**
@@ -1680,7 +1608,7 @@ class Blueprint
     }
 
     /**
-     * Determine if the blueprint has auto-increment columns.
+     * Determine if the blueprint has auto increment columns.
      *
      * @return bool
      */
@@ -1692,7 +1620,7 @@ class Blueprint
     }
 
     /**
-     * Get the auto-increment column starting values.
+     * Get the auto increment column starting values.
      *
      * @return array
      */

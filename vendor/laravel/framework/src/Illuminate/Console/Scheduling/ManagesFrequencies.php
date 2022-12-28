@@ -263,22 +263,9 @@ trait ManagesFrequencies
      */
     public function twiceDaily($first = 1, $second = 13)
     {
-        return $this->twiceDailyAt($first, $second, 0);
-    }
-
-    /**
-     * Schedule the event to run twice daily at a given offset.
-     *
-     * @param  int  $first
-     * @param  int  $second
-     * @param  int  $offset
-     * @return $this
-     */
-    public function twiceDailyAt($first = 1, $second = 13, $offset = 0)
-    {
         $hours = $first.','.$second;
 
-        return $this->spliceIntoPosition(1, $offset)
+        return $this->spliceIntoPosition(1, 0)
                     ->spliceIntoPosition(2, $hours);
     }
 
@@ -289,7 +276,7 @@ trait ManagesFrequencies
      */
     public function weekdays()
     {
-        return $this->days(Schedule::MONDAY.'-'.Schedule::FRIDAY);
+        return $this->days('1-5');
     }
 
     /**
@@ -299,7 +286,7 @@ trait ManagesFrequencies
      */
     public function weekends()
     {
-        return $this->days(Schedule::SATURDAY.','.Schedule::SUNDAY);
+        return $this->days('0,6');
     }
 
     /**
@@ -309,7 +296,7 @@ trait ManagesFrequencies
      */
     public function mondays()
     {
-        return $this->days(Schedule::MONDAY);
+        return $this->days(1);
     }
 
     /**
@@ -319,7 +306,7 @@ trait ManagesFrequencies
      */
     public function tuesdays()
     {
-        return $this->days(Schedule::TUESDAY);
+        return $this->days(2);
     }
 
     /**
@@ -329,7 +316,7 @@ trait ManagesFrequencies
      */
     public function wednesdays()
     {
-        return $this->days(Schedule::WEDNESDAY);
+        return $this->days(3);
     }
 
     /**
@@ -339,7 +326,7 @@ trait ManagesFrequencies
      */
     public function thursdays()
     {
-        return $this->days(Schedule::THURSDAY);
+        return $this->days(4);
     }
 
     /**
@@ -349,7 +336,7 @@ trait ManagesFrequencies
      */
     public function fridays()
     {
-        return $this->days(Schedule::FRIDAY);
+        return $this->days(5);
     }
 
     /**
@@ -359,7 +346,7 @@ trait ManagesFrequencies
      */
     public function saturdays()
     {
-        return $this->days(Schedule::SATURDAY);
+        return $this->days(6);
     }
 
     /**
@@ -369,7 +356,7 @@ trait ManagesFrequencies
      */
     public function sundays()
     {
-        return $this->days(Schedule::SUNDAY);
+        return $this->days(0);
     }
 
     /**
@@ -387,7 +374,7 @@ trait ManagesFrequencies
     /**
      * Schedule the event to run weekly on a given day and time.
      *
-     * @param  array|mixed  $dayOfWeek
+     * @param  int  $dayOfWeek
      * @param  string  $time
      * @return $this
      */
@@ -438,7 +425,9 @@ trait ManagesFrequencies
 
         $this->dailyAt($time);
 
-        return $this->spliceIntoPosition(3, $daysOfMonth);
+        return $this->spliceIntoPosition(1, 0)
+            ->spliceIntoPosition(2, 0)
+            ->spliceIntoPosition(3, $daysOfMonth);
     }
 
     /**
