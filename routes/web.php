@@ -25,12 +25,12 @@ Route::post('checkLogIn', [UserController::class, 'userLogIn']);
 Route::post('store-form-company', [UserController::class, 'companyRegistration']);
 
 Route::prefix('jobs')->name('job.')->group(function () {
+    Route::get('/', [JobController::class, 'index'])->name('index');
+    Route::get('/with-filter', [JobController::class, 'indexWithFilter'])->name('indexWithFilter');
     Route::get('create', [JobController::class, 'create'])->name('create');
     Route::get('manage', [JobController::class, 'manage'])->name('manage');
     Route::get('edit/{job}', [JobController::class, 'edit'])->name('edit');
     Route::post('store', [JobController::class, 'store'])->name('store');
     Route::delete('destroy/{job}', [JobController::class, 'destroy'])->name('destroy');
     Route::put('/update/{job}', [JobController::class, 'update'])->name('update');
-    // Route::get('{slug}/create/{quantity}', [JobController::class, 'create'])->name('create');
-    // Route::post('store', [JobController::class, 'store'])->name('store');
 });

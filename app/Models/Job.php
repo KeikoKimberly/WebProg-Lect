@@ -17,4 +17,9 @@ class Job extends Model
     {
         return $this->hasOne(JobLevel::class, 'id', 'job_level_id');
     }
+
+    public function company ()
+    {
+        return $this->belongsTo(Company::class, 'company_id', 'id');
+    }
 }
