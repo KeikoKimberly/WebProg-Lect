@@ -7,15 +7,27 @@ use App\Models\Job;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+
 
 class JobController extends Controller
 {
     public function index(){
+        $role = "";
+        $company = "";
+        $location = "";
+        $level_id = 0;
+        $working_type = "";
 
         return view('jobs.index-jobs', [
             'jobs' => Job::orderBy('created_at')->get(),
-            'jobLevels' => JobLevel::orderBy('level')->get()
+            'jobLevels' => JobLevel::orderBy('level')->get(),
+            'role' => $role,
+            'company' => $company,
+            'location' => $location,
+            'level_id' => $level_id,
+            'working_type' => $working_type
         ]);
     }
 
@@ -136,13 +148,9 @@ class JobController extends Controller
 
     public function update(Request $request, Job $job){
 
-        // NANTI UPDATE INI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if(!Auth::check){
-            return "Login Dulu";
-        }
         $this->inputValidation($request);
         $job->update([
-            'company_id' => auth()->user()->id,
+            // 'company_id' => auth()->user()->id,
             'role' => $request->role,
             'job_level_id' => $request->level_id,
             'working_type' => $request->working_type,
@@ -155,10 +163,6 @@ class JobController extends Controller
 
     public function store(Request $request){
 
-        // NANTI UPDATE INI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if(!Auth::check){
-            return "Login Dulu";
-        }
         $this->inputValidation($request);
 
         DB::table('jobs')->insert([

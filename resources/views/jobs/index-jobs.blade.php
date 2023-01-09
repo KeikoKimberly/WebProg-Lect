@@ -67,15 +67,45 @@
                                     <a class="btn btn-outline-primary w-100" href="#" target="_blank">Company</a>
                                 </div>
                                 <div class="col-6">
-                                    <a class="btn btn-outline-primary w-100" href="#">Detail</a>
+                                    <a class="btn btn-outline-primary w-100" data-bs-target="#delete{{ $job->id }}" data-bs-toggle="modal"
+                                        href="#">Detail</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                @endforeach
             </div>
-
         </div>
-
     </div>
+
+    @foreach($jobs as $data )
+        <div class="modal fade show pr-0" style="z-index: 9999;" id="delete{{ $data->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="alertTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content rounded-20 border-0">
+                    <div class="modal-header border-bottom-0">
+                        <h5 class="fw-bold">id: # {{$data->id}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row align-items-center justify-content-center">
+                            <h4 class="text-center">Are you sure you want to delete job as {{$data->role}} [{{$data->jobLevel->level}}] ?</h4>
+                            <div class="col-12 text-center">
+                                <form action="{{route('job.destroy', $data->id)}}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-outline-2 me-3 my-3 px-5 rounded-pill"
+                                        data-bs-dismiss="modal">
+                                        No
+                                    </button>
+                                    <button type="submit" class="btn btn-danger my-3 px-5 rounded-pill text-white">Yes</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 @endsection
